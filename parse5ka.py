@@ -37,7 +37,7 @@ class Parser5ka:
     def __init__(self, start_url):
         self.start_url = start_url
 
-    @staticmethod
+  @staticmethod
     def _get(*args, **kwargs):
         while True:
             try:
@@ -46,14 +46,14 @@ class Parser5ka:
                     raise Exception
                 time.sleep(0.1)
                 return response
-            except Exception:
-                 except (requests.exceptions.HTTPError,
-                    StatusCodeError,
-                    requests.exceptions.ConnectionError,
-                    requests.exceptions.BaseHTTPError,
-                    requests.exceptions.ConnectTimeout) as e:
-                print(e)
-                time.sleep(0.250)
+            except requests.exceptions.HTTPError as errh:
+                print ("Http Error:",errh)
+            except requests.exceptions.ConnectionError as errc:
+                print ("Error Connecting:",errc)
+            except requests.exceptions.Timeout as errt:
+                print ("Timeout Error:",errt)
+            except requests.exceptions.RequestException as err:
+                print ("OOps: Something Else",err)
           
     def run(self):
         for products in self.parse(self.start_url):
