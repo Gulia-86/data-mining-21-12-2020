@@ -1,6 +1,7 @@
 import scrapy
 import pymongo
 import re
+from lxml import etree
 
 class AutoyoulaSpider(scrapy.Spider):
     name = "autoyoula"
@@ -17,11 +18,12 @@ class AutoyoulaSpider(scrapy.Spider):
     data_query = {
         "title": lambda resp: resp.css("div.AdvertCard_advertTitle__1S1Ak::text").get(), #Название объявления
         "price": lambda resp: float(resp.css('div.AdvertCard_price__3dDCr::text').get().replace("\u2009", '')),
-        "image_urls": lambda resp: resp.css('div.FullscreenGallery_snippet__1hAXU::attr(style)').re('(https?://[^\s]+)\)'), #Список фото объявления (ссылки)
-        'specifications': lambda resp: resp.css("div.AdvertSpecs_row__ljPcX::text").get(), #Список характеристик
+        "image_urls": lambda resp: resp.xpath('//figure[contains(@class, "PhotoGallery_photo")]//img/@src').get(), #фото объявления (ссылки)
+        'specifications': lambda resp: resp.xpath("//div[starts-with(@class, 'AdvertSpecs')]//descendant-or-self::text()").get(),
         'describe': lambda resp: resp.css("div.AdvertCard_descriptionWrap__17EU3 div.AdvertCard_descriptionInner__KnuRi::text").get(),#Описание объявления
         'author': lambda resp: AutoyoulaSpider.get_author(resp), #ссылка на автора объявления
     }
+
     @staticmethod
     def get_author(resp):
         script = resp.css('script:contains("window.transitState = decodeURIComponent")::text').get()
